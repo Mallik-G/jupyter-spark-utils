@@ -5,7 +5,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "jupyter-utils",
+    name = "jupyter-spark-utils",
     version = "0.9.0",
     author = "Bernhard Walter",
     author_email = "bwalter@gmail.com",

@@ -14,17 +14,20 @@
 
 
 from IPython.core.magic import Magics, magics_class, cell_magic, needs_local_scope
-from .spark_status import prepareSparkStatus startSparkStatus stopSparkStatus
+from .spark_status import prepareSparkStatus, startSparkStatus, stopSparkStatus
 import getopt
 
 
 @magics_class
 class SparkMagics(Magics):
 
+    @needs_local_scope
     @cell_magic
-    def sparkStatus(self, line, cell):
+    def sparkStatus(self, line, cell, local_ns=None):
+        glob = self.shell.user_ns
+        sparkContext = glob["sc"]
         prepareSparkStatus()
-        startSparkStatus(sc.uiWebUrl, sc.applicationId)
+        startSparkStatus(sparkContext.uiWebUrl, sparkContext.applicationId)
         self.shell.run_cell(cell, store_history=False)
         stopSparkStatus()
 
@@ -33,19 +36,24 @@ class SparkMagics(Magics):
     @cell_magic
     def sql(self, line, cell, local_ns=None):
         glob = self.shell.user_ns
+        sparkContext = glob["sc"]
+        spark = glob.get("spark", glob["sqlContext"])
 
         try:
-            opts, args = getopt.getopt(line.split(" "), "s:p:", ["spark=", "pandas=", "status"])
+            opts, args = getopt.getopt(line.split(" "), "s:p:v", ["spark=", "pandas=", "status", "view"])
         except getopt.GetoptError as err:
             opts = []
 
         status = False
+        view = False 
         pandasDf = None
         sparkDf = None
 
         for o, a in opts:
             if o == "--status":
                 status = True
+            elif o in ("-v", "--view"):
+                view = True
             elif o in ("-p", "--pandas"):
                 pandasDf = a
             elif o in ("-s", "--spark"):
@@ -55,7 +63,7 @@ class SparkMagics(Magics):
 
         if status:
             prepareSparkStatus()
-            startSparkStatus(sc.uiWebUrl, sc.applicationId)
+            startSparkStatus(sparkContext.uiWebUrl, sparkContext.applicationId)
 
         result = spark.sql(cell)
 
@@ -68,7 +76,10 @@ class SparkMagics(Magics):
         if status:
             stopSparkStatus()
         
-        return result
+        if view:
+            return result.toPandas()
+        else:
+            return result
 
     
     @needs_local_scope
