@@ -15,6 +15,7 @@
 
 from .spark_status import prepareSparkStatus, hideSparkStatus, showSparkStatus, removeSparkStatus, stopSparkStatus, startSparkStatus
 from .magics import SparkMagics
+from .utils import overview
 
 ip = get_ipython()
 ip.register_magics(SparkMagics)

@@ -1,0 +1,12 @@
+{
+ "display_name": "PySpark2 (HDP)",
+ "language": "python",
+ "argv": [
+  "python3",
+  "-m",
+  "ipykernel",
+  "--profile=pyspark",
+  "-f",
+  "{connection_file}"
+ ]
+} 

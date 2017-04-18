@@ -1,0 +1,2 @@
+com.databricks:spark-avro_2.11:3.2.0
+# ml.combust.mleap:mleap-spark_2.11:0.6.0
