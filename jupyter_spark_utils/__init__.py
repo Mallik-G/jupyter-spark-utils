@@ -15,14 +15,9 @@
 
 from .spark_status import prepareSparkStatus, hideSparkStatus, showSparkStatus, removeSparkStatus, stopSparkStatus, startSparkStatus
 from .magics import SparkMagics
-from .utils import overview
+from .utils import overview, help
 
 ip = get_ipython()
 ip.register_magics(SparkMagics)
 
-print("""
-Available magics: 
-	%%sparkStatus
-	%%sql --status -v|--view -p|--pandas pdf -s|--spark sdf
-	%%mysql -p|--pandas pdf
-""")
+

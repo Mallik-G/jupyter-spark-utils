@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from __future__ import print_function
 
 import requests
 from IPython.display import Javascript, HTML, display_html, display_javascript
@@ -26,7 +26,7 @@ def prepareSparkStatus():
     if (typeof(window.myTimers) == "undefined") {
         window.myTimers = []
     }
-    
+
     $("#sparkStatusFooter").remove()
 
     $('body').append('<div id="sparkStatusFooter" style="%s"></div>');
@@ -37,15 +37,15 @@ def prepareSparkStatus():
 def hideSparkStatus():
     display_javascript(Javascript("""$("#sparkStatusFooter").hide()"""))
 
-    
+
 def showSparkStatus():
     display_javascript(Javascript("""$("#sparkStatusFooter").show()"""))
 
-    
+
 def removeSparkStatus():
     display_javascript(Javascript("""$("#sparkStatusFooter").remove()"""))
 
-    
+
 def stopSparkStatus():
     js = """
     for (var i in window.myTimers) {
@@ -56,21 +56,21 @@ def stopSparkStatus():
     """
     display_javascript(Javascript(js))
 
-    
+
 def startSparkStatus(uiWebUrl, applicationId):
-    
+
     # Spark provide the RM UI Web Url, which redirects to the resource manager
     response = requests.get("%s" % uiWebUrl, allow_redirects=False)
     resourceManager = response.headers["Location"].split("/")[2]
-    
+
     js = """
     var sparkStatus = function(rm, appId) {
         var url = "http://" + rm + "/proxy/" + appId;
         var killPath = "/jobs/job/kill/?id=";
         var trackPath = "/api/v1/applications/" + appId + "/";
-        
+
         window.sparkKillJob = false;
-        
+
         var killJob = function(jobId) {
             $.ajax({
                 url: url + killPath + jobId,
@@ -80,7 +80,7 @@ def startSparkStatus(uiWebUrl, applicationId):
                 error: function(request, options, error) {
                     console.log("kill error ", error)
                 }
-            });  
+            });
         }
 
         var loadStatus = function(statusType, callback) {
@@ -92,7 +92,7 @@ def startSparkStatus(uiWebUrl, applicationId):
                 error: function(request, options, error) {
                     console.log("load error ", error)
                 }
-            });                
+            });
         }
 
         var showStatus = function(txt, withButton) {
@@ -105,7 +105,7 @@ def startSparkStatus(uiWebUrl, applicationId):
 
         var retries = 3;
         var attempt = 0;
-        
+
         window.myTimer = setInterval(function() {
             console.log("next")
             loadStatus("jobs", function(data) {
@@ -122,8 +122,8 @@ def startSparkStatus(uiWebUrl, applicationId):
                 if (!complete) {
                     var d = data[0]
                     var out = "SPARK STATUS: JobId: " + d.jobId +
-                              ", Tasks (all/act/done): " + d.numTasks          + "/" + 
-                                                           d.numActiveTasks    + "/" + 
+                              ", Tasks (all/act/done): " + d.numTasks          + "/" +
+                                                           d.numActiveTasks    + "/" +
                                                            d.numCompletedTasks +
                               ", stageIds: " + JSON.stringify(d.stageIds)
 
@@ -135,8 +135,8 @@ def startSparkStatus(uiWebUrl, applicationId):
                         for (var i in data) {
                             if (data[i].status != "COMPLETE") {
                                 var out2 = " ==> " +
-                                           "Stage: " + data[i].stageId + 
-                                           " (" + data[i].name.split(":")[0] + "): " + 
+                                           "Stage: " + data[i].stageId +
+                                           " (" + data[i].name.split(":")[0] + "): " +
                                            data[i].status
                                 showStatus(out + out2, true);
                             }
@@ -151,9 +151,8 @@ def startSparkStatus(uiWebUrl, applicationId):
 
         window.myTimers.push(myTimer)
     }
-    
+
     sparkStatus("%s", "%s")
     """ % (resourceManager, applicationId)
 
     display_javascript(Javascript(js))
-  
